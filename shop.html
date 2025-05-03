@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MetroSafe E-commerce Prototype</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topnav">
+    <div class="logo">MetroSafe</div>
+    <button id="cart-icon" class="cart-icon">Cart (<span id="cart-count">0</span>)</button>
+  </header>
+
+  <div class="hero-container">
+    <img src="hero_img.png" alt="MetroSafe products in use" class="hero-image" />
+    <div class="hotspot-items">
+      <!-- MetroSafe Shirt -->
+      <div class="item item-shirt">
+        <div class="popup">
+          <img src="shirt.png" alt="MetroSafe Shirt" />
+          <h3>MetroSafe Shirt</h3>
+          <p>$25.00</p>
+          <button class="add-to-cart" data-id="shirt" data-name="MetroSafe Shirt" data-price="25" data-image="shirt.png">Add to Cart</button>
+        </div>
+      </div>
+      <!-- MetroSafe Sweatshirt -->
+      <div class="item item-sweatshirt">
+        <div class="popup">
+          <img src="Sweatshirt.png" alt="MetroSafe Sweatshirt" />
+          <h3>MetroSafe Sweatshirt</h3>
+          <p>$45.00</p>
+          <button class="add-to-cart" data-id="sweatshirt" data-name="MetroSafe Sweatshirt" data-price="45" data-image="Sweatshirt.png">Add to Cart</button>
+        </div>
+      </div>
+      <!-- MetroSafe Coffee Mug -->
+      <div class="item item-mug">
+        <div class="popup">
+          <img src="mug.png" alt="MetroSafe Coffee Mug" />
+          <h3>MetroSafe Coffee Mug</h3>
+          <p>$20.00</p>
+          <button class="add-to-cart" data-id="mug" data-name="MetroSafe Coffee Mug" data-price="20" data-image="mug.png">Add to Cart</button>
+        </div>
+      </div>
+      <!-- MetroSafe Book -->
+      <div class="item item-book">
+        <div class="popup">
+          <img src = "book-image-placeholder.png"> 
+          <h3>MetroSafe Book</h3>
+          <p>$30.00</p>
+          <button class="add-to-cart" data-id="book" data-name="MetroSafe Book" data-price="30" data-image="">Add to Cart</button>
+        </div>
+      </div>
+      <!-- MetroSafe Tote Bag -->
+      <div class="item item-totebag">
+        <div class="popup">
+          <img src="totebag.png" alt="MetroSafe Tote Bag" />
+          <h3>MetroSafe Tote Bag</h3>
+          <p>$25.00</p>
+          <button class="add-to-cart" data-id="totebag" data-name="MetroSafe Tote Bag" data-price="25" data-image="totebag.png">Add to Cart</button>
+        </div>
+      </div>
+      <!-- MetroSafe Dog Tag -->
+      <div class="item item-dogtag">
+        <div class="popup">
+          <img src="dogtag.png" alt="MetroSafe Dog Tag" />
+          <h3>MetroSafe Dog Tag</h3>
+          <p>$20.00</p>
+          <button class="add-to-cart" data-id="dogtag" data-name="MetroSafe Dog Tag" data-price="20" data-image="dogtag.png">Add to Cart</button>
+        </div>
+      </div>
+      <!-- MetroSafe Phone Case -->
+      <div class="item item-phonecase">
+        <div class="popup">
+          <img src="phonecase.png" alt="MetroSafe Phone Case" />
+          <h3>MetroSafe Phone Case</h3>
+          <p>$30.00</p>
+          <button class="add-to-cart" data-id="phonecase" data-name="MetroSafe Phone Case" data-price="30" data-image="phonecase.png">Add to Cart</button>
+        </div>
+      </div>
+      <!-- MetroSafe Hat -->
+      <div class="item item-hat">
+        <div class="popup">
+          <img src="hat.png" alt="MetroSafe Hat" />
+          <h3>MetroSafe Hat</h3>
+          <p>$25.00</p>
+          <button class="add-to-cart" data-id="hat" data-name="MetroSafe Hat" data-price="25" data-image="hat.png">Add to Cart</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cart Sidebar -->
+  <div class="cart-sidebar" id="cart-sidebar">
+    <div class="cart-header">
+      <h2>Shopping Cart</h2>
+      <button id="cart-close">&times;</button>
+    </div>
+    <ul id="cart-items-list">
+      <li class="empty-cart-msg">Your cart is empty.</li>
+    </ul>
+    <div class="cart-footer">
+      <div class="cart-total">Total: $<span id="cart-total">0.00</span></div>
+      <button id="checkout-btn">Checkout</button>
+    </div>
+  </div>
+  <div class="overlay" id="cart-overlay"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
