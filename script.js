@@ -1,147 +1,169 @@
-// Cart state object
-const cart = {};
+// JavaScript for MetroSafe Interactive Shopping Page
 
-// Utility function to update cart count and total
+// Select relevant elements
+const cartToggleBtn = document.querySelector('.cart-toggle');
+const cartPanel = document.querySelector('.cart-panel');
+const cartOverlay = document.querySelector('.cart-overlay');
+const cartCloseBtn = document.querySelector('.cart-close');
+const cartItemsContainer = document.querySelector('.cart-items');
+const cartEmptyMessage = document.querySelector('.cart-empty');
+const cartTotalElem = document.getElementById('cart-total');
+const cartCountElem = document.getElementById('cart-count');
+
+// Data structure to hold cart items (keyed by product id)
+const cart = {};  // e.g., cart = { shirt: { name: "MetroSafe T-Shirt", price: 25, qty: 2 }, ... }
+
+// Product info lookup (could also be data-* attributes, but using an object for convenience)
+const products = {
+  "shirt":      { name: "MetroSafe T-Shirt", price: 25.00, image: "shirt.png" },
+  "sweatshirt": { name: "MetroSafe Sweatshirt", price: 40.00, image: "Sweatshirt.png" },
+  "mug":        { name: "MetroSafe Mug", price: 12.00, image: "mug.png" },
+  "book":       { name: "MetroSafe Notebook", price: 15.00, image: "hero_img.png" },  // using hero_img as placeholder image for the notebook
+  "tote":       { name: "MetroSafe Tote Bag", price: 18.00, image: "totebag.png" },
+  "phone":      { name: "MetroSafe Phone Case", price: 22.00, image: "phonecase.png" },
+  "hat":        { name: "MetroSafe Hat", price: 20.00, image: "hat.png" },
+  "dogtag":     { name: "MetroSafe Dog Tag", price: 8.00,  image: "dogtag.png" }
+};
+
+// Utility: update Cart Count and Total in UI
 function updateCartSummary() {
-  let count = 0;
-  let total = 0;
-  for (let id in cart) {
-    const item = cart[id];
-    count += item.quantity;
-    total += item.price * item.quantity;
+  // Update cart item count
+  let itemCount = 0;
+  let totalPrice = 0;
+  for (let pid in cart) {
+    const item = cart[pid];
+    itemCount += item.qty;
+    totalPrice += item.price * item.qty;
   }
-  document.getElementById('cart-count').innerText = count;
-  document.getElementById('cart-total').innerText = total.toFixed(2);
+  cartCountElem.textContent = itemCount;
+  cartTotalElem.textContent = totalPrice.toFixed(2);
   // Show or hide "empty cart" message
-  const emptyMsg = document.querySelector('.empty-cart-msg');
-  if (emptyMsg) {
-    emptyMsg.style.display = (count === 0 ? 'block' : 'none');
+  if (itemCount === 0) {
+    cartEmptyMessage.style.display = 'block';
+  } else {
+    cartEmptyMessage.style.display = 'none';
   }
 }
 
-// Handle Add to Cart buttons in popups
-document.querySelectorAll('.add-to-cart').forEach(button => {
-  button.addEventListener('click', (e) => {
-    e.stopPropagation(); // prevent triggering item click/toggle
-    const id = button.dataset.id;
-    const name = button.dataset.name;
-    const price = parseFloat(button.dataset.price);
-    const image = button.dataset.image;  // may be empty string if no image
-    if (cart[id]) {
-      // If already in cart, increase quantity
-      cart[id].quantity += 1;
-      // Update the quantity display for this item
-      const qtySpan = document.querySelector(`.cart-item[data-id="${id}"] .qty`);
-      if (qtySpan) qtySpan.innerText = cart[id].quantity;
-    } else {
-      // Add new item to cart
-      cart[id] = { name: name, price: price, image: image, quantity: 1 };
-      // Create a new cart item list element
-      const cartList = document.getElementById('cart-items-list');
-      const li = document.createElement('li');
-      li.className = 'cart-item';
-      li.setAttribute('data-id', id);
-      // Build inner HTML for the cart item
-      let imgTag = '';
-      if (image) {
-        imgTag = `<img src="${image}" alt="${name}" class="cart-item-image" />`;
-      }
-      li.innerHTML = `
-        ${imgTag}
-        <div class="item-details">
-          <div class="item-name-price">
-            <span class="item-name">${name}</span>
-            <span class="item-price">$${price.toFixed(2)}</span>
-          </div>
-          <div class="item-quantity">
-            <button class="qty-btn minus" data-id="${id}">-</button>
-            <span class="qty">${cart[id].quantity}</span>
-            <button class="qty-btn plus" data-id="${id}">+</button>
-          </div>
+// Render the cart items list in the sidebar
+function renderCartItems() {
+  cartItemsContainer.innerHTML = '';  // clear current items
+  for (let pid in cart) {
+    const item = cart[pid];
+    // Create cart item element (using a template literal for HTML)
+    const itemElem = document.createElement('div');
+    itemElem.className = 'cart-item';
+    itemElem.innerHTML = `
+      <img src="${products[pid].image}" alt="${item.name}" />
+      <div class="cart-item-info">
+        <div class="cart-item-name">${item.name}</div>
+        <div class="cart-item-qty">
+          <button class="qty-decrease" data-product="${pid}">-</button>
+          <span class="qty">${item.qty}</span>
+          <button class="qty-increase" data-product="${pid}">+</button>
         </div>
-      `;
-      // Remove "empty cart" message if present (will be hidden via updateCartSummary as well)
-      // Append the new item to the cart list
-      cartList.appendChild(li);
-    }
-    // Update cart count and total
-    updateCartSummary();
-  });
-});
-
-// Handle plus/minus quantity buttons using event delegation
-document.getElementById('cart-items-list').addEventListener('click', (e) => {
-  if (e.target.classList.contains('qty-btn')) {
-    const id = e.target.dataset.id;
-    if (e.target.classList.contains('plus')) {
-      cart[id].quantity += 1;
-    } else if (e.target.classList.contains('minus')) {
-      cart[id].quantity -= 1;
-    }
-    // If quantity drops to 0 or below, remove item from cart
-    if (cart[id].quantity <= 0) {
-      delete cart[id];
-      const itemLi = e.target.closest('.cart-item');
-      if (itemLi) itemLi.remove();
-    } else {
-      // Update the displayed quantity for this item
-      const qtySpan = e.target.closest('.cart-item').querySelector('.qty');
-      qtySpan.innerText = cart[id].quantity;
-    }
-    // Update cart count and total
-    updateCartSummary();
+      </div>
+      <div class="cart-item-price">$${(item.price * item.qty).toFixed(2)}</div>
+    `;
+    cartItemsContainer.appendChild(itemElem);
   }
-});
-
-// Cart sidebar open/close logic
-const cartIconBtn = document.getElementById('cart-icon');
-const cartSidebar = document.getElementById('cart-sidebar');
-const cartOverlay = document.getElementById('cart-overlay');
-const cartCloseBtn = document.getElementById('cart-close');
-
-// Toggle cart sidebar when cart icon is clicked
-cartIconBtn.addEventListener('click', () => {
-  const isOpen = cartSidebar.classList.contains('open');
-  cartSidebar.classList.toggle('open');
-  cartOverlay.classList.toggle('active');
-});
-
-// Close cart when clicking the close button or overlay
-cartCloseBtn.addEventListener('click', () => {
-  cartSidebar.classList.remove('open');
-  cartOverlay.classList.remove('active');
-});
-cartOverlay.addEventListener('click', () => {
-  cartSidebar.classList.remove('open');
-  cartOverlay.classList.remove('active');
-});
-
-// Hotspot popup behavior for touch devices (enable tap to toggle popups)
-document.querySelectorAll('.item').forEach(item => {
-  // If device supports touch events
-  if ('ontouchstart' in document.documentElement) {
-    item.addEventListener('click', () => {
-      // Toggle the popup on tap
-      if (item.classList.contains('active')) {
-        item.classList.remove('active');
-      } else {
-        // hide any other open popups
-        document.querySelectorAll('.item.active').forEach(openItem => {
-          openItem.classList.remove('active');
-        });
-        item.classList.add('active');
-      }
-    });
-  }
-});
-
-// If tapping outside any hotspot popup on mobile, close all popups
-if ('ontouchstart' in document.documentElement) {
-  document.addEventListener('click', (e) => {
-    if (!e.target.closest('.item')) {
-      document.querySelectorAll('.item.active').forEach(openItem => {
-        openItem.classList.remove('active');
-      });
-    }
-  });
+  updateCartSummary();
 }
+
+// Add item to cart (or increase quantity if already in cart)
+function addToCart(productId) {
+  const product = products[productId];
+  if (!product) return;
+  if (cart[productId]) {
+    // already in cart, increase quantity
+    cart[productId].qty += 1;
+  } else {
+    // add new item
+    cart[productId] = { name: product.name, price: product.price, qty: 1 };
+  }
+  // Re-render cart items and open cart panel
+  renderCartItems();
+  openCart();
+}
+
+// Open cart sidebar
+function openCart() {
+  cartPanel.classList.add('open');
+  cartOverlay.style.display = 'block';
+}
+
+// Close cart sidebar
+function closeCart() {
+  cartPanel.classList.remove('open');
+  cartOverlay.style.display = 'none';
+}
+
+// Event Listeners:
+
+// 1. Cart toggle button (opens cart)
+cartToggleBtn.addEventListener('click', openCart);
+
+// 2. Cart close button (closes cart)
+cartCloseBtn.addEventListener('click', closeCart);
+
+// 3. Overlay click (closes cart if click outside cart)
+cartOverlay.addEventListener('click', closeCart);
+
+// 4. Add-to-Cart buttons in popups
+document.querySelectorAll('.add-to-cart').forEach(btn => {
+  btn.addEventListener('click', (e) => {
+    const productId = btn.getAttribute('data-product');
+    addToCart(productId);
+    e.stopPropagation();  // prevent click from bubbling (which might close popup)
+  });
+});
+
+// 5. Hotspot clicks (for mobile support – toggle popup visibility)
+document.querySelectorAll('.hotspot').forEach(hotspot => {
+  hotspot.addEventListener('click', (e) => {
+    // Toggle popup display on tap (mobile)
+    const popup = hotspot.querySelector('.popup');
+    if (!popup) return;
+    const isVisible = popup.style.display === 'block';
+    // Hide any other open popups first
+    document.querySelectorAll('.popup').forEach(p => p.style.display = 'none');
+    if (!isVisible) {
+      // Show this popup
+      popup.style.display = 'block';
+    } else {
+      // (If it was already visible, it will now be hidden by the above code)
+    }
+    e.stopPropagation();  // prevent triggering any parent handlers
+  });
+});
+
+// 6. Click outside any hotspot/popup closes popups (for mobile)
+document.addEventListener('click', (e) => {
+  // If click is not inside a hotspot, close any open popups
+  // We can check if the clicked element is a popup or marker or child of hotspot
+  if (!e.target.closest('.hotspot')) {
+    document.querySelectorAll('.popup').forEach(p => p.style.display = 'none');
+  }
+});
+
+// 7. Cart quantity increase/decrease buttons
+// We delegate this event to the cart items container for efficiency
+cartItemsContainer.addEventListener('click', (e) => {
+  if (e.target.classList.contains('qty-increase') || e.target.classList.contains('qty-decrease')) {
+    const productId = e.target.getAttribute('data-product');
+    if (!productId || !cart[productId]) return;
+    if (e.target.classList.contains('qty-increase')) {
+      cart[productId].qty += 1;
+    } else if (e.target.classList.contains('qty-decrease')) {
+      cart[productId].qty -= 1;
+      // Remove item if quantity goes to 0
+      if (cart[productId].qty <= 0) {
+        delete cart[productId];
+      }
+    }
+    renderCartItems();
+  }
+});
+
+// Initialize cart display (ensure correct empty state on load)
+updateCartSummary();
